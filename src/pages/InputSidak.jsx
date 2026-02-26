@@ -25,6 +25,27 @@ const schema = yup.object({
         }),
 })
 
+const RO_OPTIONS = [
+    "RO 1/Medan",
+    "RO 2/ Pekanbaru",
+    "RO 3/Padang",
+    "RO 4/Palembang",
+    "RO 5/ Bandar Lampung",
+    "RO 6/ Jakarta 1",
+    "RO 7/ Jakarta 2",
+    "RO 8/ Jakarta 3",
+    "RO 9/Bandung",
+    "RO 10/Semarang",
+    "RO 11/Yogyakarta",
+    "RO 12/Surabaya",
+    "RO 13/Malang",
+    "RO 14/Banjarmasin",
+    "RO 15/Makassar",
+    "RO 16/Manado",
+    "RO 17/Denpasar",
+    "RO 18/Jayapura"
+];
+
 export default function InputSidak() {
     const navigate = useNavigate()
     const { identity, setIdentity } = useSidakStore()
@@ -67,11 +88,15 @@ export default function InputSidak() {
                     <label className="form-label">
                         Nama Regional Office (RO) <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <select
                         {...register('nama_ro')}
                         className={errors.nama_ro ? 'form-input-error' : 'form-input'}
-                        placeholder="Contoh: RO Jakarta"
-                    />
+                    >
+                        <option value="">Pilih Regional Office</option>
+                        {RO_OPTIONS.map((ro) => (
+                            <option key={ro} value={ro}>{ro}</option>
+                        ))}
+                    </select>
                     {errors.nama_ro && (
                         <p className="text-xs text-red-500 mt-1">{errors.nama_ro.message}</p>
                     )}
