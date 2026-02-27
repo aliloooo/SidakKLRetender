@@ -93,12 +93,12 @@ export default function AspekPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Manajemen Aspek</h1>
                     <p className="text-sm text-gray-500 mt-0.5">Kelola aspek penilaian dan bobot masing-masing</p>
                 </div>
-                <button onClick={openAdd} className="btn-primary">
+                <button onClick={openAdd} className="btn-primary w-full sm:w-auto justify-center">
                     <Plus className="w-4 h-4" /> Tambah Aspek
                 </button>
             </div>
@@ -120,50 +120,45 @@ export default function AspekPage() {
                         <p className="text-gray-400">Belum ada aspek. Klik "Tambah Aspek" untuk memulai.</p>
                     </div>
                 ) : (
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr>
-                                <th className="table-th">No</th>
-                                <th className="table-th">Nama Aspek</th>
-                                <th className="table-th w-32 text-center">Bobot (%)</th>
-                                <th className="table-th w-32 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {aspekList.map((a, idx) => (
-                                <tr key={a.id} className="hover:bg-gray-50">
-                                    <td className="table-td text-gray-400 w-10">{idx + 1}</td>
-                                    <td className="table-td font-medium text-gray-900">{a.nama_aspek}</td>
-                                    <td className="table-td text-center">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">
-                                            {Number(a.bobot_aspek).toFixed(2)}%
-                                        </span>
-                                    </td>
-                                    <td className="table-td text-center">
-                                        <div className="flex items-center justify-center gap-1">
-                                            <button onClick={() => openEdit(a)} className="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                            <button onClick={() => openDelete(a)} className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th className="table-th w-10 hidden sm:table-cell">No</th>
+                                    <th className="table-th min-w-[150px]">Nama Aspek</th>
+                                    <th className="table-th w-32 text-center">Bobot (%)</th>
+                                    <th className="table-th w-32 text-center">Aksi</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr className="border-t-2 border-gray-200 bg-gray-50">
-                                <td colSpan={2} className="px-4 py-3 text-sm font-semibold text-gray-700 text-right">Total Bobot:</td>
-                                <td className={`px-4 py-3 text-center font-bold text-sm ${totalBobot === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                    {totalBobot.toFixed(2)}%
-                                </td>
-                                <td />
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                {aspekList.map((a, idx) => (
+                                    <tr key={a.id} className="hover:bg-gray-50">
+                                        <td className="table-td text-gray-400 w-10 hidden sm:table-cell">{idx + 1}</td>
+                                        <td className="table-td font-medium text-gray-900">{a.nama_aspek}</td>
+                                        <td className="table-td text-center">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold">
+                                                {Number(a.bobot_aspek).toFixed(2)}%
+                                            </span>
+                                        </td>
+                                        <td className="table-td text-center">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button onClick={() => openEdit(a)} className="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => openDelete(a)} className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
+
 
             {/* Add/Edit Modal */}
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editItem ? 'Edit Aspek' : 'Tambah Aspek'}>

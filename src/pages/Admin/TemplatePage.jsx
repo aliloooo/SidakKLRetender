@@ -4,6 +4,7 @@ import { getTemplateFiles, uploadTemplate, deleteTemplate } from '../../services
 import LoadingSpinner from '../../components/LoadingSpinner'
 import Modal from '../../components/Modal'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 export default function TemplatePage() {
     const [files, setFiles] = useState([])
@@ -156,7 +157,7 @@ export default function TemplatePage() {
                                     <td className="table-td text-gray-500">{formatDate(f.uploaded_at)}</td>
                                     <td className="table-td text-center">
                                         <div className="flex items-center justify-center gap-1">
-                                            <a
+                                            <Link
                                                 href={f.file_url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
@@ -164,7 +165,7 @@ export default function TemplatePage() {
                                                 title="Download"
                                             >
                                                 <Download className="w-4 h-4" />
-                                            </a>
+                                            </Link>
                                             <button
                                                 onClick={() => { setDeleteItem(f); setDeleteModal(true) }}
                                                 className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"

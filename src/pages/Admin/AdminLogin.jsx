@@ -47,7 +47,8 @@ export default function AdminLogin() {
                 </div>
 
                 {/* Card */}
-                <div className="bg-white rounded-2xl shadow-2xl p-8">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 mx-2 sm:mx-0">
+
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <div>
                             <label className="form-label">Email</label>

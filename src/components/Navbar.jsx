@@ -9,15 +9,16 @@ export default function Navbar() {
         <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    <Link to="/" className="flex items-center gap-2.5">
-                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600">
+                    <Link to="/" className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-600 flex-shrink-0">
                             <ClipboardCheck className="w-5 h-5 text-white" />
                         </div>
-                        <div>
-                            <span className="font-bold text-gray-900 text-sm leading-none block">SIDAK</span>
-                            <span className="text-xs text-gray-400 leading-none">Kantor Layanan</span>
+                        <div className="hidden xs:block">
+                            <span className="font-bold text-gray-900 text-sm leading-none block uppercase">SIDAK</span>
+                            <span className="text-[10px] text-gray-400 leading-none">Kantor Layanan</span>
                         </div>
                     </Link>
+
 
                     <nav className="flex items-center gap-1">
                         <Link

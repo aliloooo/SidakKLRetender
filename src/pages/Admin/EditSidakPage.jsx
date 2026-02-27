@@ -120,15 +120,16 @@ export default function EditSidakPage() {
     return (
         <div className="max-w-4xl mx-auto space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-4">
-                <button onClick={() => navigate('/admin/results')} className="btn-secondary">
+            <div className="flex items-center gap-3 sm:gap-4">
+                <button onClick={() => navigate('/admin/results')} className="btn-secondary px-2 sm:px-4">
                     <ArrowLeft className="w-4 h-4" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Laporan SIDAK</h1>
-                    <p className="text-sm text-gray-500 mt-0.5">Lakukan perubahan pada data identitas atau hasil checklist</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">Edit Laporan SIDAK</h1>
+                    <p className="text-[10px] sm:text-sm text-gray-500 mt-0.5">Lakukan perubahan pada data identitas atau hasil checklist</p>
                 </div>
             </div>
+
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Identity Section */}
@@ -177,25 +178,26 @@ export default function EditSidakPage() {
                 </div>
 
                 {/* Score Summary Banner */}
-                <div className={`rounded-xl border p-5 flex items-center justify-between shadow-sm transition-all ${status === 'Comply' ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-red-600 border-red-500 text-white'
+                <div className={`rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm transition-all ${status === 'Comply' ? 'bg-emerald-600 border-emerald-500 text-white' : 'bg-red-600 border-red-500 text-white'
                     }`}>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                            <CheckCircle2 className="w-7 h-7" />
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                            <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7" />
                         </div>
                         <div>
-                            <p className="text-xs font-medium opacity-80 uppercase tracking-wider">Total Skor Akhir</p>
-                            <p className="text-4xl font-black">{totalNilai.toFixed(2)}</p>
+                            <p className="text-[10px] sm:text-xs font-medium opacity-80 uppercase tracking-wider">Total Skor Akhir</p>
+                            <p className="text-3xl sm:text-4xl font-black">{totalNilai.toFixed(2)}</p>
                         </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-xs opacity-80 mb-1 uppercase tracking-wider">Status Kelulusan</p>
-                        <div className="flex items-center gap-2 bg-white/20 px-4 py-1.5 rounded-full">
-                            <span className="text-lg font-bold">{status === 'Comply' ? 'LULUS (Comply)' : 'TIDAK LULUS'}</span>
+                    <div className="text-center sm:text-right w-full sm:w-auto">
+                        <p className="text-[10px] sm:text-xs opacity-80 mb-1 uppercase tracking-wider">Status Kelulusan</p>
+                        <div className="flex items-center justify-center sm:justify-end gap-2 bg-white/20 px-4 py-1.5 rounded-full">
+                            <span className="text-base sm:text-lg font-bold">{status === 'Comply' ? 'LULUS' : 'TIDAK LULUS'}</span>
                         </div>
-                        <p className="text-[10px] opacity-60 mt-1.5 italic">*Batas minimum kelulusan adalah 80.00</p>
+                        <p className="text-[10px] opacity-60 mt-1.5 italic">*Batas minimum 80.00</p>
                     </div>
                 </div>
+
 
                 {/* Checklist Sections */}
                 {aspekList.map((aspek) => {
@@ -206,25 +208,25 @@ export default function EditSidakPage() {
                     return (
                         <div key={aspek.id} className="card p-0 overflow-hidden border-2 border-gray-100">
                             {/* Aspek Header */}
-                            <div className="flex items-center justify-between px-6 py-4 bg-gray-50 border-b">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-4 bg-gray-50 border-b gap-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-2 h-8 bg-brand-600 rounded-full" />
+                                    <div className="w-1.5 h-8 bg-brand-600 rounded-full" />
                                     <div>
-                                        <h3 className="font-bold text-gray-900">{aspek.nama_aspek}</h3>
+                                        <h3 className="font-bold text-gray-900 text-sm sm:text-base">{aspek.nama_aspek}</h3>
                                         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                                            Bobot Maks: {Number(aspek.bobot_aspek).toFixed(2)}%
+                                            Bobot: {Number(aspek.bobot_aspek).toFixed(2)}%
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right">
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Capaian Nilai</p>
-                                        <p className="text-2xl font-black text-brand-600">{nilaiAspek.toFixed(2)}</p>
+                                <div className="flex items-center justify-between sm:justify-end gap-4">
+                                    <div className="text-left sm:text-right">
+                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Capaian</p>
+                                        <p className="text-xl sm:text-2xl font-black text-brand-600">{nilaiAspek.toFixed(2)}</p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setAllSesuai(aspek.id)}
-                                        className="btn-secondary bg-white text-xs py-1.5 border-gray-200"
+                                        className="btn-secondary bg-white text-[10px] sm:text-xs py-1.5 border-gray-200"
                                     >
                                         <CheckCheck className="w-3.5 h-3.5" />
                                         Auto Sesuai
@@ -232,18 +234,20 @@ export default function EditSidakPage() {
                                 </div>
                             </div>
 
+
                             {/* Sub Aspek Table */}
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="bg-gray-50/50">
-                                            <th className="table-th py-3">Sub Aspek</th>
-                                            <th className="table-th py-3 w-40 text-center">Kelengkapan</th>
-                                            <th className="table-th py-3 w-24 text-center">Unit</th>
-                                            <th className="table-th py-3">Keterangan</th>
-                                            <th className="table-th py-3 w-20 text-center">Nilai</th>
+                                            <th className="table-th py-3 min-w-[150px]">Sub Aspek</th>
+                                            <th className="table-th py-3 w-32 sm:w-40 text-center">Hasil</th>
+                                            <th className="table-th py-3 w-20 sm:w-24 text-center hidden md:table-cell">Unit</th>
+                                            <th className="table-th py-3 hidden lg:table-cell">Keterangan</th>
+                                            <th className="table-th py-3 w-16 sm:w-20 text-center">Nilai</th>
                                         </tr>
                                     </thead>
+
                                     <tbody className="divide-y divide-gray-100">
                                         {aspekDetails.map((d) => (
                                             <tr key={d.sub_aspek_id} className="hover:bg-gray-50/50 transition-colors">
@@ -252,14 +256,14 @@ export default function EditSidakPage() {
                                                     <select
                                                         value={d.kelengkapan}
                                                         onChange={(e) => updateDetail(d.sub_aspek_id, 'kelengkapan', e.target.value)}
-                                                        className={`w-full px-3 py-1.5 rounded-lg border text-xs font-bold transition-all focus:ring-2 focus:ring-brand-500 outline-none ${d.kelengkapan === 'Sesuai' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
+                                                        className={`w-full px-2 sm:px-3 py-1.5 rounded-lg border text-[10px] sm:text-xs font-bold transition-all focus:ring-2 focus:ring-brand-500 outline-none ${d.kelengkapan === 'Sesuai' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
                                                             }`}
                                                     >
                                                         <option value="Sesuai">Sesuai</option>
-                                                        <option value="Tidak Sesuai">Tidak Sesuai</option>
+                                                        <option value="Tidak Sesuai">Tidak</option>
                                                     </select>
                                                 </td>
-                                                <td className="table-td py-3 text-center">
+                                                <td className="table-td py-3 text-center hidden md:table-cell">
                                                     <input
                                                         type="number"
                                                         value={d.jumlah_unit || ''}
@@ -268,7 +272,7 @@ export default function EditSidakPage() {
                                                         placeholder="0"
                                                     />
                                                 </td>
-                                                <td className="table-td py-3">
+                                                <td className="table-td py-3 hidden lg:table-cell">
                                                     <input
                                                         type="text"
                                                         value={d.keterangan || ''}
@@ -277,6 +281,7 @@ export default function EditSidakPage() {
                                                         placeholder="Catatan..."
                                                     />
                                                 </td>
+
                                                 <td className="table-td py-3 text-center font-black text-brand-600">
                                                     {d.nilai.toFixed(2)}
                                                 </td>
@@ -290,11 +295,11 @@ export default function EditSidakPage() {
                 })}
 
                 {/* Footer Actions */}
-                <div className="flex items-center justify-between pt-4 pb-12">
-                    <button type="button" onClick={() => navigate('/admin/results')} className="btn-secondary px-8">
-                        Batalkan Perubahan
+                <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-4 pb-12">
+                    <button type="button" onClick={() => navigate('/admin/results')} className="btn-secondary w-full sm:w-auto px-8 justify-center">
+                        Batal
                     </button>
-                    <button type="submit" disabled={submitting} className="btn-primary px-12 py-3 text-base shadow-lg shadow-brand-200">
+                    <button type="submit" disabled={submitting} className="btn-primary w-full sm:w-auto px-12 py-3 text-sm sm:text-base shadow-lg shadow-brand-200 justify-center">
                         {submitting ? (
                             <>
                                 <span className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
@@ -303,11 +308,12 @@ export default function EditSidakPage() {
                         ) : (
                             <>
                                 <Save className="w-5 h-5" />
-                                Simpan Perubahan Laporan
+                                Simpan Perubahan
                             </>
                         )}
                     </button>
                 </div>
+
             </form>
         </div>
     )

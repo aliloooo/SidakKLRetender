@@ -120,15 +120,16 @@ export default function SubAspekPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Manajemen Sub Aspek</h1>
                     <p className="text-sm text-gray-500 mt-0.5">Kelola sub aspek penilaian untuk setiap aspek</p>
                 </div>
-                <button onClick={openAdd} disabled={aspekList.length === 0} className="btn-primary">
+                <button onClick={openAdd} disabled={aspekList.length === 0} className="btn-primary w-full sm:w-auto justify-center">
                     <Plus className="w-4 h-4" /> Tambah Sub Aspek
                 </button>
             </div>
+
 
             {aspekList.length === 0 && !loading && (
                 <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
@@ -179,43 +180,47 @@ export default function SubAspekPage() {
                         <p className="text-gray-400">Belum ada sub aspek ditemukan.</p>
                     </div>
                 ) : (
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr>
-                                <th className="table-th">No</th>
-                                <th className="table-th">Aspek</th>
-                                <th className="table-th">Nama Sub Aspek</th>
-                                <th className="table-th w-32 text-center">Bobot (%)</th>
-                                <th className="table-th w-32 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filtered.map((sa, idx) => (
-                                <tr key={sa.id} className="hover:bg-gray-50">
-                                    <td className="table-td text-gray-400 w-10">{idx + 1}</td>
-                                    <td className="table-td">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 text-xs font-medium">
-                                            {sa.aspek?.nama_aspek || '-'}
-                                        </span>
-                                    </td>
-                                    <td className="table-td font-medium text-gray-900">{sa.nama_sub_aspek}</td>
-                                    <td className="table-td text-center text-gray-600">{Number(sa.bobot_sub_aspek).toFixed(2)}%</td>
-                                    <td className="table-td text-center">
-                                        <div className="flex items-center justify-center gap-1">
-                                            <button onClick={() => openEdit(sa)} className="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                            <button onClick={() => { setDeleteItem(sa); setDeleteModalOpen(true) }} className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr>
+                                    <th className="table-th w-10 hidden sm:table-cell">No</th>
+                                    <th className="table-th min-w-[120px]">Aspek</th>
+                                    <th className="table-th min-w-[150px]">Nama Sub Aspek</th>
+                                    <th className="table-th w-32 text-center">Bobot (%)</th>
+                                    <th className="table-th w-32 text-center">Aksi</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {filtered.map((sa, idx) => (
+                                    <tr key={sa.id} className="hover:bg-gray-50">
+                                        <td className="table-td text-gray-400 w-10 hidden sm:table-cell">{idx + 1}</td>
+
+                                        <td className="table-td">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 text-xs font-medium">
+                                                {sa.aspek?.nama_aspek || '-'}
+                                            </span>
+                                        </td>
+                                        <td className="table-td font-medium text-gray-900">{sa.nama_sub_aspek}</td>
+                                        <td className="table-td text-center text-gray-600">{Number(sa.bobot_sub_aspek).toFixed(2)}%</td>
+                                        <td className="table-td text-center">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button onClick={() => openEdit(sa)} className="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => { setDeleteItem(sa); setDeleteModalOpen(true) }} className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
+
 
             {/* Add/Edit Modal */}
             <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editItem ? 'Edit Sub Aspek' : 'Tambah Sub Aspek'}>

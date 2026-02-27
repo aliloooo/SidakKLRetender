@@ -102,7 +102,7 @@ export default function ResultsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Manajemen Hasil SIDAK</h1>
                     <p className="text-sm text-gray-500 mt-0.5">Pantau dan kelola semua laporan SIDAK yang telah diinput</p>
@@ -110,13 +110,13 @@ export default function ResultsPage() {
             </div>
 
             <div className="card p-0 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="px-6 py-4 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-base font-semibold text-gray-900">Laporan Masuk</h2>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         {sidakList.length > 0 && (
                             <button
                                 onClick={exportAllDetailsToExcel}
-                                className="btn-secondary text-xs py-1.5"
+                                className="btn-secondary text-xs py-1.5 w-full sm:w-auto justify-center"
                                 title="Download semua rincian penilaian dari semua laporan"
                             >
                                 <FileDown className="w-4 h-4" />
@@ -134,7 +134,7 @@ export default function ResultsPage() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Cari berdasarkan RO atau Kantor Layanan..."
+                                placeholder="Cari RO atau Kantor Layanan..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
@@ -153,14 +153,15 @@ export default function ResultsPage() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr>
-                                    <th className="table-th">No</th>
-                                    <th className="table-th">RO / KL</th>
-                                    <th className="table-th">Tanggal</th>
+                                    <th className="table-th w-10">No</th>
+                                    <th className="table-th min-w-[200px]">RO / KL</th>
+                                    <th className="table-th hidden sm:table-cell">Tanggal</th>
                                     <th className="table-th text-center">Total Nilai</th>
                                     <th className="table-th">Status</th>
                                     <th className="table-th text-center">Aksi</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {filteredList.length === 0 ? (
                                     <tr>
@@ -176,11 +177,12 @@ export default function ResultsPage() {
                                                 <div className="font-semibold text-gray-900">{s.nama_ro}</div>
                                                 <div className="text-xs text-gray-500">{s.nama_kl}</div>
                                             </td>
-                                            <td className="table-td whitespace-nowrap">
+                                            <td className="table-td hidden sm:table-cell whitespace-nowrap">
                                                 {new Date(s.tanggal_kunjungan).toLocaleDateString('id-ID', {
                                                     day: '2-digit', month: 'short', year: 'numeric'
                                                 })}
                                             </td>
+
                                             <td className="table-td text-center font-bold text-gray-900">
                                                 {Number(s.total_nilai).toFixed(2)}
                                             </td>
