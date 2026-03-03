@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Download, CheckCircle2, XCircle, ClipboardList, TrendingUp, AlertTriangle, FileSpreadsheet, Search } from 'lucide-react'
-import * as XLSX from 'xlsx'
+import { Plus, Download, CheckCircle2, XCircle, ClipboardList, TrendingUp, AlertTriangle, Search } from 'lucide-react'
 import { getSidakList } from '../services/sidakService'
-import { getAspek } from '../services/aspekService'
 import { getLatestTemplate } from '../services/templateService'
 import LoadingSpinner from '../components/LoadingSpinner'
 import toast from 'react-hot-toast'
 
 export default function Dashboard() {
     const [sidakList, setSidakList] = useState([])
-    const [aspekList, setAspekList] = useState([])
     const [template, setTemplate] = useState(null)
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
@@ -22,13 +19,11 @@ export default function Dashboard() {
     async function loadData() {
         setLoading(true)
         try {
-            const [sidak, aspek, tmpl] = await Promise.all([
+            const [sidak, tmpl] = await Promise.all([
                 getSidakList(),
-                getAspek(),
                 getLatestTemplate(),
             ])
             setSidakList(sidak)
-            setAspekList(aspek)
             setTemplate(tmpl)
         } catch (err) {
             toast.error('Gagal memuat data: ' + err.message)
@@ -37,123 +32,11 @@ export default function Dashboard() {
         }
     }
 
-    const totalCompliant = sidakList.filter((s) => s.status === 'Comply').length
-    const totalNotCompliant = sidakList.length - totalCompliant
-
     // Filtered list based on search
     const filteredList = sidakList.filter(s =>
         s.nama_ro.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.nama_kl.toLowerCase().includes(searchQuery.toLowerCase())
     )
-
-    const avgScore = sidakList.length
-        ? (sidakList.reduce((s, i) => s + Number(i.total_nilai), 0) / sidakList.length).toFixed(2)
-        : '0.00'
-
-    // Build per-aspek nilai lookup: { sidak_id: { aspek_id: nilai } }
-    function getNilaiAspek(sidak, aspek_id) {
-        if (!sidak.sidak_detail) return '-'
-        const val = sidak.sidak_detail
-            .filter((d) => d.aspek_id === aspek_id)
-            .reduce((s, d) => s + Number(d.nilai), 0)
-        return val.toFixed(2)
-    }
-
-    function exportToExcel() {
-        try {
-            // Prepare data array specifically for Excel columns
-            const excelData = sidakList.map((sidak, index) => {
-                const rowData = {
-                    'No': index + 1,
-                    'Regional Office (RO)': sidak.nama_ro,
-                    'Kantor Layanan (KL)': sidak.nama_kl,
-                    'Tanggal Kunjungan': new Date(sidak.tanggal_kunjungan).toLocaleDateString('id-ID'),
-                };
-
-                // Add columns for each aspek dynamically
-                aspekList.forEach(a => {
-                    rowData[a.nama_aspek] = Number(getNilaiAspek(sidak, a.id));
-                });
-
-                rowData['Total Nilai'] = Number(sidak.total_nilai).toFixed(2);
-                rowData['Status'] = sidak.status;
-
-                return rowData;
-            });
-
-            // Create worksheet and workbook
-            const worksheet = XLSX.utils.json_to_sheet(excelData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Rekap SIDAK');
-
-            // Trigger download
-            XLSX.writeFile(workbook, 'Rekap_Laporan_SIDAK.xlsx');
-            toast.success('File Rekap Excel berhasil diunduh!');
-        } catch (error) {
-            toast.error('Gagal mengekspor data rekap: ' + error.message);
-        }
-    }
-
-    function exportSingleToExcel(sidak) {
-        try {
-            // Header info
-            const headerData = [
-                ['LAPORAN HASIL SIDAK KANTOR LAYANAN'],
-                [''],
-                ['Regional Office:', sidak.nama_ro],
-                ['Kantor Layanan:', sidak.nama_kl],
-                ['Tanggal Kunjungan:', new Date(sidak.tanggal_kunjungan).toLocaleDateString('id-ID')],
-                ['Total Nilai Akhir:', Number(sidak.total_nilai).toFixed(2)],
-                ['Status:', sidak.status],
-                [''],
-                ['RINCIAN PENILAIAN'],
-                ['Aspek', 'Sub Aspek', 'Kelengkapan', 'Unit', 'Keterangan', 'Nilai']
-            ];
-
-            // Detail rows
-            const detailRows = [];
-            aspekList.forEach(aspek => {
-                // Filter details for this aspek from the sidak object
-                const details = (sidak.sidak_detail || []).filter(d => d.aspek_id === aspek.id);
-
-                details.forEach((d, idx) => {
-                    detailRows.push([
-                        idx === 0 ? aspek.nama_aspek : '',
-                        d.sub_aspek?.nama_sub_aspek || d.sub_aspek_id || 'Detail tidak ditemukan',
-                        d.kelengkapan,
-                        d.jumlah_unit || '-',
-                        d.keterangan || '-',
-                        Number(d.nilai).toFixed(2)
-                    ]);
-                });
-
-                // Add empty row between aspects
-                if (details.length > 0) detailRows.push(['']);
-            });
-
-            const worksheet = XLSX.utils.aoa_to_sheet([...headerData, ...detailRows]);
-
-            // Set column widths
-            worksheet['!cols'] = [
-                { wch: 30 }, // Aspek
-                { wch: 45 }, // Sub Aspek
-                { wch: 15 }, // Kelengkapan
-                { wch: 10 }, // Unit
-                { wch: 35 }, // Keterangan
-                { wch: 10 }, // Nilai
-            ];
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Detail Laporan');
-
-            const fileName = `SIDAK_${sidak.nama_kl}_${sidak.tanggal_kunjungan}.xlsx`.replace(/\s+/g, '_');
-            XLSX.writeFile(workbook, fileName);
-            toast.success(`Laporan ${sidak.nama_kl} berhasil diunduh!`);
-        } catch (error) {
-            console.error(error);
-            toast.error('Gagal mengekspor laporan: ' + error.message);
-        }
-    }
 
     if (loading) return <LoadingSpinner />
 
@@ -184,44 +67,26 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Summary cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
-                        <ClipboardList className="w-6 h-6 text-brand-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-500">Total SIDAK</p>
-                        <p className="text-2xl font-bold text-gray-900">{sidakList.length}</p>
-                    </div>
-                </div>
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-500">Comply</p>
-                        <p className="text-2xl font-bold text-gray-900">{totalCompliant}</p>
-                    </div>
-                </div>
-                <div className="card flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-                        <XCircle className="w-6 h-6 text-red-500" />
-                    </div>
-                    <div>
-                        <p className="text-sm text-gray-500">Not Comply</p>
-                        <p className="text-2xl font-bold text-gray-900">{totalNotCompliant}</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Average Score Banner */}
+            {/* RO Stats Section */}
             {sidakList.length > 0 && (
-                <div className="card bg-gradient-to-r from-brand-600 to-brand-700 border-0 flex items-center gap-4">
-                    <TrendingUp className="w-8 h-8 text-brand-200 flex-shrink-0" />
-                    <div>
-                        <p className="text-brand-200 text-sm font-medium">Rata-rata Total Nilai</p>
-                        <p className="text-white text-3xl font-bold">{avgScore}</p>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 px-1">
+                        <TrendingUp className="w-5 h-5 text-brand-600" />
+                        <h2 className="text-base font-bold text-gray-900">Statistik Input per Regional Office</h2>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {Object.entries(
+                            sidakList.reduce((acc, curr) => {
+                                acc[curr.nama_ro] = (acc[curr.nama_ro] || 0) + 1;
+                                return acc;
+                            }, {})
+                        ).sort((a, b) => b[1] - a[1]).map(([roName, count]) => (
+                            <div key={roName} className="card p-3 flex flex-col items-center justify-center text-center border-brand-100/50 hover:border-brand-200 transition-colors">
+                                <span className="text-[10px] font-bold text-brand-600/70 uppercase tracking-widest mb-1">{roName}</span>
+                                <span className="text-2xl font-black text-gray-900">{count}</span>
+                                <span className="text-[10px] text-gray-400 font-medium">Laporan Kunjungan</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
@@ -233,16 +98,6 @@ export default function Dashboard() {
                         <h2 className="text-base font-semibold text-gray-900">Daftar Hasil SIDAK</h2>
                         <span className="text-xs text-gray-400">{sidakList.length} entri</span>
                     </div>
-                    {sidakList.length > 0 && (
-                        <button
-                            onClick={exportToExcel}
-                            className="btn-secondary text-gray-600 hover:text-brand-600 border-gray-200 text-xs py-1.5"
-                            title="Download rekap semua laporan dalam satu file Excel"
-                        >
-                            <FileSpreadsheet className="w-4 h-4 text-brand-600" />
-                            Rekap Semua (Excel)
-                        </button>
-                    )}
                 </div>
 
                 {/* Search Bar - only show if list has items */}
@@ -273,23 +128,15 @@ export default function Dashboard() {
                             <thead>
                                 <tr>
                                     <th className="table-th rounded-tl-none">No</th>
-                                    <th className="table-th">Nama RO</th>
-                                    <th className="table-th">Nama KL</th>
-                                    <th className="table-th">Tanggal</th>
-                                    {aspekList.map((a) => (
-                                        <th key={a.id} className="table-th whitespace-nowrap">
-                                            {a.nama_aspek}
-                                        </th>
-                                    ))}
-                                    <th className="table-th">Total Nilai</th>
-                                    <th className="table-th">Status</th>
-                                    <th className="table-th text-center">Aksi</th>
+                                    <th className="table-th text-left">Nama RO</th>
+                                    <th className="table-th text-left">Nama KL</th>
+                                    <th className="table-th text-left">Tanggal Kunjungan</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredList.length === 0 ? (
                                     <tr>
-                                        <td colSpan={aspekList.length + 7} className="table-td text-center py-10 text-gray-500 italic">
+                                        <td colSpan={4} className="table-td text-center py-10 text-gray-500 italic">
                                             Tidak ada hasil yang sesuai dengan pencarian "{searchQuery}"
                                         </td>
                                     </tr>
@@ -302,34 +149,9 @@ export default function Dashboard() {
                                             <td className="table-td whitespace-nowrap">
                                                 {new Date(sidak.tanggal_kunjungan).toLocaleDateString('id-ID', {
                                                     day: '2-digit',
-                                                    month: 'short',
+                                                    month: 'long',
                                                     year: 'numeric',
                                                 })}
-                                            </td>
-                                            {aspekList.map((a) => (
-                                                <td key={a.id} className="table-td text-center font-medium">
-                                                    {getNilaiAspek(sidak, a.id)}
-                                                </td>
-                                            ))}
-                                            <td className="table-td font-bold text-gray-900">
-                                                {Number(sidak.total_nilai).toFixed(2)}
-                                            </td>
-                                            <td className="table-td">
-                                                {sidak.status === 'Comply' ? (
-                                                    <span className="badge-comply">✓ Comply</span>
-                                                ) : (
-                                                    <span className="badge-not-comply">✗ Not Comply</span>
-                                                )}
-                                            </td>
-                                            <td className="table-td text-center">
-                                                <button
-                                                    onClick={() => exportSingleToExcel(sidak)}
-                                                    className="p-1.5 rounded-lg text-brand-600 hover:bg-brand-50 transition-colors inline-flex items-center gap-1.5 group"
-                                                    title="Download laporan detail Excel untuk entri ini"
-                                                >
-                                                    <Download className="w-4 h-4" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-tight group-hover:underline">Excel</span>
-                                                </button>
                                             </td>
                                         </tr>
                                     ))

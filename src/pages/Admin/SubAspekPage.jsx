@@ -20,7 +20,7 @@ export default function SubAspekPage() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [editItem, setEditItem] = useState(null)
     const [deleteItem, setDeleteItem] = useState(null)
-    const [form, setForm] = useState({ aspek_id: '', nama_sub_aspek: '', bobot_sub_aspek: '' })
+    const [form, setForm] = useState({ aspek_id: '', nama_sub_aspek: '', bobot_sub_aspek: '', is_unit_required: false })
     const [saving, setSaving] = useState(false)
 
     useEffect(() => { loadData() }, [])
@@ -44,13 +44,18 @@ export default function SubAspekPage() {
 
     function openAdd() {
         setEditItem(null)
-        setForm({ aspek_id: aspekList[0]?.id || '', nama_sub_aspek: '', bobot_sub_aspek: '' })
+        setForm({ aspek_id: aspekList[0]?.id || '', nama_sub_aspek: '', bobot_sub_aspek: '', is_unit_required: false })
         setModalOpen(true)
     }
 
     function openEdit(item) {
         setEditItem(item)
-        setForm({ aspek_id: item.aspek_id, nama_sub_aspek: item.nama_sub_aspek, bobot_sub_aspek: item.bobot_sub_aspek })
+        setForm({
+            aspek_id: item.aspek_id,
+            nama_sub_aspek: item.nama_sub_aspek,
+            bobot_sub_aspek: item.bobot_sub_aspek,
+            is_unit_required: !!item.is_unit_required
+        })
         setModalOpen(true)
     }
 
@@ -87,6 +92,7 @@ export default function SubAspekPage() {
                 aspek_id: form.aspek_id,
                 nama_sub_aspek: form.nama_sub_aspek,
                 bobot_sub_aspek: Number(form.bobot_sub_aspek),
+                is_unit_required: form.is_unit_required
             }
             if (editItem) {
                 await updateSubAspek(editItem.id, payload)
@@ -187,7 +193,8 @@ export default function SubAspekPage() {
                                     <th className="table-th w-10 hidden sm:table-cell">No</th>
                                     <th className="table-th min-w-[120px]">Aspek</th>
                                     <th className="table-th min-w-[150px]">Nama Sub Aspek</th>
-                                    <th className="table-th w-32 text-center">Bobot (%)</th>
+                                    <th className="table-th w-24 text-center">Bobot</th>
+                                    <th className="table-th w-24 text-center">Unit Wajib</th>
                                     <th className="table-th w-32 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -203,6 +210,13 @@ export default function SubAspekPage() {
                                         </td>
                                         <td className="table-td font-medium text-gray-900">{sa.nama_sub_aspek}</td>
                                         <td className="table-td text-center text-gray-600">{Number(sa.bobot_sub_aspek).toFixed(2)}%</td>
+                                        <td className="table-td text-center">
+                                            {sa.is_unit_required ? (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider border border-amber-200">Wajib</span>
+                                            ) : (
+                                                <span className="text-gray-300">-</span>
+                                            )}
+                                        </td>
                                         <td className="table-td text-center">
                                             <div className="flex items-center justify-center gap-1">
                                                 <button onClick={() => openEdit(sa)} className="p-1.5 rounded-lg text-gray-500 hover:text-brand-600 hover:bg-brand-50 transition-colors">
@@ -246,18 +260,31 @@ export default function SubAspekPage() {
                             placeholder="Contoh: Keramahan Petugas"
                         />
                     </div>
-                    <div>
-                        <label className="form-label">Bobot Sub Aspek (%) <span className="text-red-500">*</span></label>
-                        <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            className="form-input"
-                            value={form.bobot_sub_aspek}
-                            onChange={(e) => setForm({ ...form, bobot_sub_aspek: e.target.value })}
-                            placeholder="Contoh: 10.55"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="form-label">Bobot Sub Aspek (%) <span className="text-red-500">*</span></label>
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                className="form-input"
+                                value={form.bobot_sub_aspek}
+                                onChange={(e) => setForm({ ...form, bobot_sub_aspek: e.target.value })}
+                                placeholder="Contoh: 10.55"
+                            />
+                        </div>
+                        <div className="flex flex-col justify-end">
+                            <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50 cursor-pointer hover:bg-gray-50 transition-all select-none">
+                                <input
+                                    type="checkbox"
+                                    className="w-4 h-4 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+                                    checked={form.is_unit_required}
+                                    onChange={(e) => setForm({ ...form, is_unit_required: e.target.checked })}
+                                />
+                                <span className="text-sm font-medium text-gray-700">Unit Wajib Diisi</span>
+                            </label>
+                        </div>
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setModalOpen(false)} className="btn-secondary">Batal</button>

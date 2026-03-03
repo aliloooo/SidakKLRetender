@@ -44,6 +44,7 @@ export default function Checklist() {
                 nilai: 0,
                 bobot_sub_aspek: sa.bobot_sub_aspek,
                 nama_sub_aspek: sa.nama_sub_aspek,
+                is_unit_required: !!sa.is_unit_required,
             }))
             setDetails(rows)
         } catch (err) {
@@ -82,6 +83,18 @@ export default function Checklist() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+
+        // Validation: check for required units conditionally
+        const missingUnits = details.filter(d =>
+            d.is_unit_required &&
+            d.kelengkapan === 'Sesuai' &&
+            (!d.jumlah_unit || Number(d.jumlah_unit) <= 0)
+        )
+        if (missingUnits.length > 0) {
+            const names = missingUnits.map(m => m.nama_sub_aspek).join(', ')
+            return toast.error(`Jumlah unit wajib diisi untuk item yang 'Sesuai': ${names}`, { duration: 5000 })
+        }
+
         setSubmitting(true)
         try {
             await createSidak({ identity, details })
@@ -131,34 +144,11 @@ export default function Checklist() {
                 <div className="bg-brand-600 h-1.5 rounded-full" style={{ width: '100%' }} />
             </div>
 
-            {/* Floating Score Card */}
-            <div className={`sticky top-20 z-30 rounded-xl border p-4 flex items-center justify-between shadow-md transition-colors ${status === 'Comply'
-                ? 'bg-emerald-600 border-emerald-500 text-white'
-                : 'bg-red-600 border-red-500 text-white'
-                }`}>
-                <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 opacity-80" />
-                    <div>
-                        <p className="text-xs font-medium opacity-80">Total Nilai Akhir</p>
-                        <p className="text-3xl font-bold">{totalNilai.toFixed(2)}</p>
-                    </div>
-                </div>
-                <div className="text-right">
-                    <p className="text-xs opacity-80 mb-1">Status</p>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${status === 'Comply' ? 'bg-white/20 text-white' : 'bg-white/20 text-white'
-                        }`}>
-                        {status === 'Comply' ? '✓ Comply' : '✗ Not Comply'}
-                    </span>
-                    <p className="text-xs opacity-60 mt-1">Minimum: 80</p>
-                </div>
-            </div>
-
             {/* Aspek Tables */}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {aspekList.map((aspek) => {
                     const aspekSubAspek = subAspekList.filter((sa) => sa.aspek_id === aspek.id)
                     const aspekDetails = details.filter((d) => d.aspek_id === aspek.id)
-                    const nilaiAspek = calcNilaiAspek(details, aspek.id)
 
                     return (
                         <div key={aspek.id} className="card p-0 overflow-hidden">
@@ -166,13 +156,8 @@ export default function Checklist() {
                             <div className="flex items-center justify-between px-6 py-3.5 bg-brand-600">
                                 <div className="flex items-center gap-3">
                                     <span className="text-white font-semibold text-sm">{aspek.nama_aspek}</span>
-                                    <span className="text-brand-200 text-xs bg-brand-700/50 px-2 py-0.5 rounded-full">
-                                        Bobot {Number(aspek.bobot_aspek).toFixed(2)}%
-                                    </span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <p className="text-brand-200 text-[10px] uppercase font-bold tracking-wider">Nilai Aspek</p>
-                                    <p className="text-white font-bold text-lg">{nilaiAspek.toFixed(2)}</p>
                                     <button
                                         type="button"
                                         onClick={() => setAllSesuai(aspek.id)}
@@ -193,12 +178,10 @@ export default function Checklist() {
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr>
-                                                <th className="table-th">Sub Aspek</th>
-                                                <th className="table-th w-32 text-center">Kelengkapan</th>
+                                                <th className="table-th text-left">Sub Aspek</th>
+                                                <th className="table-th w-36 text-center">Kelengkapan</th>
                                                 <th className="table-th w-32 text-center">Jumlah Unit</th>
-                                                <th className="table-th">Keterangan</th>
-                                                <th className="table-th w-28 text-center">Bobot (%)</th>
-                                                <th className="table-th w-24 text-center">Nilai</th>
+                                                <th className="table-th text-left">Keterangan</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -212,8 +195,8 @@ export default function Checklist() {
                                                                 value={detail?.kelengkapan ?? 'Tidak Sesuai'}
                                                                 onChange={(e) => updateDetail(sa.id, 'kelengkapan', e.target.value)}
                                                                 className={`w-full px-2 py-1.5 border rounded-lg text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors ${(detail?.kelengkapan ?? 'Tidak Sesuai') === 'Sesuai'
-                                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                                        : 'bg-red-50 text-red-700 border-red-200'
+                                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                                    : 'bg-red-50 text-red-700 border-red-200'
                                                                     }`}
                                                             >
                                                                 <option value="Sesuai" className="bg-white text-gray-900 font-normal">Sesuai</option>
@@ -227,10 +210,13 @@ export default function Checklist() {
                                                                 placeholder="0"
                                                                 value={detail?.jumlah_unit ?? ''}
                                                                 onChange={(e) => updateDetail(sa.id, 'jumlah_unit', e.target.value)}
-                                                                className="w-24 px-2 py-1.5 text-center border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                                                                className={`w-24 px-2 py-1.5 text-center border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all ${detail?.is_unit_required && (!detail?.jumlah_unit || Number(detail?.jumlah_unit) <= 0)
+                                                                    ? 'border-amber-400 bg-amber-50/30'
+                                                                    : 'border-gray-300'
+                                                                    }`}
                                                             />
                                                         </td>
-                                                        <td className="table-td">
+                                                        <td className="table-td text-left">
                                                             <input
                                                                 type="text"
                                                                 placeholder="Opsional..."
@@ -238,12 +224,6 @@ export default function Checklist() {
                                                                 onChange={(e) => updateDetail(sa.id, 'keterangan', e.target.value)}
                                                                 className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                                             />
-                                                        </td>
-                                                        <td className="table-td text-center text-gray-600">
-                                                            {Number(sa.bobot_sub_aspek).toFixed(2)}%
-                                                        </td>
-                                                        <td className="table-td text-center font-bold text-brand-700">
-                                                            {(detail?.nilai ?? 0).toFixed(2)}
                                                         </td>
                                                     </tr>
                                                 )

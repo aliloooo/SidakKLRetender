@@ -13,11 +13,12 @@ CREATE TABLE IF NOT EXISTS aspek (
 
 -- 2. Sub Aspek (sub-categories)
 CREATE TABLE IF NOT EXISTS sub_aspek (
-  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  aspek_id         uuid NOT NULL REFERENCES aspek(id) ON DELETE CASCADE,
-  nama_sub_aspek   text NOT NULL,
-  bobot_sub_aspek  numeric NOT NULL CHECK (bobot_sub_aspek >= 0),
-  created_at       timestamptz DEFAULT now()
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  aspek_id          uuid NOT NULL REFERENCES aspek(id) ON DELETE CASCADE,
+  nama_sub_aspek    text NOT NULL,
+  bobot_sub_aspek   numeric NOT NULL CHECK (bobot_sub_aspek >= 0),
+  is_unit_required  boolean DEFAULT false,
+  created_at        timestamptz DEFAULT now()
 );
 
 -- 3. SIDAK Header (main inspection record)

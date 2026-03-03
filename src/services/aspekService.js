@@ -57,20 +57,20 @@ export async function getAllSubAspekByAspek() {
     return data
 }
 
-export async function createSubAspek({ aspek_id, nama_sub_aspek, bobot_sub_aspek }) {
+export async function createSubAspek({ aspek_id, nama_sub_aspek, bobot_sub_aspek, is_unit_required }) {
     const { data, error } = await supabase
         .from('sub_aspek')
-        .insert([{ aspek_id, nama_sub_aspek, bobot_sub_aspek }])
+        .insert([{ aspek_id, nama_sub_aspek, bobot_sub_aspek, is_unit_required }])
         .select()
         .single()
     if (error) throw error
     return data
 }
 
-export async function updateSubAspek(id, { aspek_id, nama_sub_aspek, bobot_sub_aspek }) {
+export async function updateSubAspek(id, { aspek_id, nama_sub_aspek, bobot_sub_aspek, is_unit_required }) {
     const { data, error } = await supabase
         .from('sub_aspek')
-        .update({ aspek_id, nama_sub_aspek, bobot_sub_aspek })
+        .update({ aspek_id, nama_sub_aspek, bobot_sub_aspek, is_unit_required })
         .eq('id', id)
         .select()
         .single()
